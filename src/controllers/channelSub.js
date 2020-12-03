@@ -1,8 +1,7 @@
 const { Channel, Subscribe } = require('../../models');
 
-//! Channel hasMany Subscriber
-
-exports.getAllChannels = async (req, res) => {
+//? Get all channels
+exports.getChannelsAll = async (req, res) => {
   try {
     const channels = await Channel.findAll({
       attributes: {
@@ -16,6 +15,16 @@ exports.getAllChannels = async (req, res) => {
         },
       },
     });
+    if (!channels) {
+      res.status(400).send({
+        status: 'Request success',
+        message: 'Data not found',
+        count: channels.length,
+        data: {
+          channels,
+        },
+      });
+    }
     res.status(200).send({
       status: 'Data fetched',
       message: 'Data succesfully fetched',
@@ -26,35 +35,64 @@ exports.getAllChannels = async (req, res) => {
     });
   } catch (err) {
     res.status(500).send({
-      error: {
-        message: err.message,
+      status: 'Server error',
+      message: {
+        error: err.message,
       },
     });
   }
 };
 
-//! Subscribe hasMany Channel
+//? Get data by id
 
-exports.getAllSubscriber = async (req, res) => {
+exports.getChannelById = async (req, res) => {
   try {
-    const subscribers = await Subscribe.findAll({
-      attributes: [],
+    const { id } = req.params;
+
+    const channel = await Channel.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ['updatedAt', 'createdAt'],
+      },
       include: {
         model: Channel,
-        as: 'channels',
-        through: { attributes: [] },
+        as: 'subscribers',
+        through: {
+          attributes: [],
+        },
+        attributes: [
+          'id',
+          'email',
+          'channelName',
+          'description',
+          'thumbnail',
+          'photo',
+        ],
       },
     });
+    if (!channel) {
+      res.status(400).send({
+        status: 'Request success',
+        message: 'Data not found',
+        data: {
+          channel,
+        },
+      });
+    }
     res.status(200).send({
-      status: 'Data fetched',
-      message: 'Data was successfully fetched',
-      count: subscribers.length,
-      subscribers,
+      status: 'Request success',
+      message: 'Data succesfully fetched',
+      data: {
+        channel,
+      },
     });
   } catch (err) {
     res.status(500).send({
-      error: {
-        message: err.message,
+      status: 'Server error',
+      message: {
+        error: err.message,
       },
     });
   }

@@ -1,18 +1,13 @@
 const express = require('express');
 const app = express();
 
-//! Port
+//* Port
 const port = process.env.PORT || 5000;
 
-// *Import Module
-const routerChannel = require('./src/routes/channel');
+//?Import router
+const router = require('./src/routes');
 
 // Using main url
-
-app.get('/', (req, res) => {
-  res.json({
-    message: 'method get all',
-  });
-});
+app.use('/api/v1', router);
 
 app.listen(port, () => console.log(`server is running on localhost:${port}`));
