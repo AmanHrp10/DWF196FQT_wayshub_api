@@ -9,6 +9,8 @@ const {
   getAllSubscriber,
 } = require('../controllers/channelSub');
 
+// comment module
+const { getAllComment } = require('../controllers/comment');
 //? Channel Routes
 // router.get('/channels', getChannelAll);
 // router.get('/channel/:id', getChannelById);
@@ -21,5 +23,8 @@ router.get('/channels', getAllChannels);
 
 //? Subscribe Channel Relation routes
 router.get('/subscribes', getAllSubscriber);
+
+//? Comment routes
+router.get('/comments', getAllComment);
 
 module.exports = router;
