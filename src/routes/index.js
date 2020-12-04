@@ -8,7 +8,8 @@ const { auth } = require('../middleware/auth');
 //? Require Module
 const { getVideoAll, getVideoById } = require('../controllers/video');
 
-const { registers } = require('../controllers/register');
+const { register } = require('../controllers/register');
+const { login } = require('../controllers/login');
 
 // const { getAllComment } = require('../controllers/comment');
 
@@ -20,6 +21,7 @@ router.get('/video/:id', getVideoById);
 
 //? Register route
 
-router.post('/registers', registers);
+router.post('/registers', register);
+router.post('/login', login);
 
 module.exports = router;

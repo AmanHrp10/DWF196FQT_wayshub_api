@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const Joi = require('joi');
 
-exports.registers = async (req, res) => {
+exports.register = async (req, res) => {
   try {
     const { body } = req;
     const schema = Joi.object({
