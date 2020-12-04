@@ -22,9 +22,9 @@ exports.getVideoAll = async (req, res) => {
       },
     });
     if (videos.length === 0) {
-      res.status(404).send({
+      res.status(400).send({
         status: 'Request success',
-        message: `Data not found`,
+        message: `Data not exist`,
         count: videos.length,
         data: {
           videos,
@@ -92,9 +92,9 @@ exports.getVideoById = async (req, res) => {
       ],
     });
     if (video.length === 0) {
-      res.status(404).send({
+      res.status(400).send({
         status: 'Request success',
-        message: `Data not found`,
+        message: `Data not exist`,
         data: {
           video,
         },
