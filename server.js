@@ -4,6 +4,9 @@ const app = express();
 //! Port
 const port = process.env.PORT || 5000;
 
+//! Using library
+app.use(express.json());
+
 // *Import Module
 const routers = require('./src/routes/');
 

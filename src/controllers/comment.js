@@ -87,3 +87,108 @@ exports.getCommentById = async (req, res) => {
     });
   }
 };
+
+exports.addComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    const newComment = await Comment.create({
+      comment: body.comment,
+      channelId: body.channelId,
+      videoId: id,
+    });
+
+    const addComment = await Comment.findOne({
+      where: {
+        id: newComment.id,
+      },
+      attributes: ['id', 'comment'],
+      include: {
+        model: Channel,
+        as: 'channel',
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+      },
+    });
+
+    res.status(201).send({
+      status: 'Request success',
+      message: 'Comment was adding',
+      data: {
+        comment: addComment,
+      },
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send({
+      status: 'Request failed',
+      message: 'Server error',
+    });
+  }
+};
+
+exports.updateComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    //? Update
+    await Comment.update(body, {
+      where: {
+        id,
+      },
+    });
+
+    //? Show comment Updated
+    const comment = await Comment.findOne({
+      where: {
+        id,
+      },
+      attributes: ['id', 'comment'],
+      include: {
+        model: Channel,
+        as: 'channel',
+        attributes: {
+          exclude: ['createdAt', 'updatedAt', 'password'],
+        },
+      },
+    });
+    res.status(200).send({
+      status: 'Request success',
+      message: 'Comment was updated',
+      data: {
+        comment,
+      },
+    });
+  } catch (err) {
+    return res.status(500).send({
+      status: 'Request failed',
+      message: 'Server error',
+    });
+  }
+};
+
+exports.deleteComment = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const comment = await Comment.destroy({
+      where: {
+        id,
+      },
+    });
+    res.status(200).send({
+      status: 'Request success',
+      message: 'Comment was Deleted',
+      data: {
+        comment,
+      },
+    });
+  } catch (err) {
+    return res.status(500).send({
+      status: 'Request failed',
+      message: 'Server error',
+    });
+  }
+};
