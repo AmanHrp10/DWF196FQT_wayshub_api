@@ -1,7 +1,5 @@
 'use strict';
-const {
-  Model
-} = require('sequelize');
+const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class Subscribe extends Model {
     /**
@@ -10,15 +8,18 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      //? Relationship
     }
-  };
-  Subscribe.init({
-    channelId: DataTypes.INTEGER,
-    subsChannelId: DataTypes.INTEGER
-  }, {
-    sequelize,
-    modelName: 'Subscribe',
-  });
+  }
+  Subscribe.init(
+    {
+      channelId: DataTypes.INTEGER,
+      subsChannelId: DataTypes.INTEGER,
+    },
+    {
+      sequelize,
+      modelName: 'Subscribe',
+    }
+  );
   return Subscribe;
 };
