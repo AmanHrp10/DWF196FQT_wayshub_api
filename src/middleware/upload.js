@@ -1,5 +1,4 @@
 const multer = require('multer');
-const { ne } = require('sequelize/types/lib/operators');
 
 exports.uploadFile = (thumbnail, video) => {
   const storage = multer.diskStorage({
