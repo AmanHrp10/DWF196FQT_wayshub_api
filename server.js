@@ -7,9 +7,10 @@ app.use(express.json());
 //* Port
 const port = process.env.PORT || 5000;
 
-
 //? Config
 require('dotenv').config();
+
+//? Using library
 app.use(express.json());
 
 // *Import Module

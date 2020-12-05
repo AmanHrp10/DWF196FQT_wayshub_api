@@ -42,9 +42,7 @@ exports.getVideoAll = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       status: 'Request failed',
-      message: {
-        error: err.message,
-      },
+      message: err.message,
     });
   }
 };
@@ -105,6 +103,132 @@ exports.getVideoById = async (req, res) => {
       message: 'Data succesfully fetched',
       data: {
         video,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: 'Request failed',
+      message: {
+        error: 'Server error',
+      },
+    });
+  }
+};
+
+//? Add video
+exports.addVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    // const channel = await Channel.findOne({ where: { id } });
+
+    const newVideo = await Video.create({
+      title: body.title,
+      thumbnail: body.thumbnail,
+      description: body.description,
+      video: body.video,
+      viewCount: 0,
+      channelId: body.channelId, // on Video using channel.id
+    });
+
+    const video = await Video.findOne({
+      where: {
+        id: newVideo.id,
+      },
+      attributes: {
+        exclude: ['updatedAt', 'channelId', 'ChannelId'],
+      },
+      include: {
+        model: Channel,
+        as: 'channel',
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+      },
+    });
+    res.status(200).send({
+      status: 'Request success',
+      message: 'Video succesfully Added',
+      data: {
+        video,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: 'Request failed',
+      message: {
+        error: 'Server error',
+      },
+    });
+  }
+};
+
+//? Update video
+exports.updateVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    const detailVideo = await Video.findOne({ where: { id } });
+
+    if (!detailVideo) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: `Video with id ${id} not found`,
+        data: [],
+      });
+    }
+
+    await Video.update(body, { where: { id } });
+
+    const videoUpdated = await Video.findOne({
+      where: { id },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'ChannelId', 'channelId'],
+      },
+      include: {
+        model: Channel,
+        as: 'channel',
+        attributes: {
+          exclude: ['createdAt', 'updatedAt'],
+        },
+      },
+    });
+
+    //? Response Video after updated
+    res.status(200).send({
+      status: 'Request success',
+      message: 'Video succesfully updated',
+      data: {
+        video: videoUpdated,
+      },
+    });
+  } catch (err) {
+    res.status(500).send({
+      status: 'Request failed',
+      message: {
+        error: err.message,
+      },
+    });
+  }
+};
+
+
+//? Delete video
+exports.deleteVideo = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedVideo = await Video.destroy({
+      where: { id },
+    });
+
+    //? Response after deleted
+    res.status(200).send({
+      status: 'Request success',
+      message: 'Video succesfully deleted',
+      data: {
+        video: deletedVideo,
       },
     });
   } catch (err) {
