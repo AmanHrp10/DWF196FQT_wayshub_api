@@ -35,10 +35,8 @@ exports.getChannelsAll = async (req, res) => {
     });
   } catch (err) {
     res.status(500).send({
-      status: 'Server error',
-      message: {
-        error: err.message,
-      },
+      status: 'Request failed',
+      message: 'Server error',
     });
   }
 };
@@ -90,10 +88,55 @@ exports.getChannelById = async (req, res) => {
     });
   } catch (err) {
     res.status(500).send({
-      status: 'Server error',
-      message: {
-        error: err.message,
+      status: 'Request failed',
+      message: 'Server error',
+    });
+  }
+};
+
+//? Edit
+
+exports.editChannel = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { body } = req;
+
+    await Channel.update(body, { where: { id } });
+
+    const channelUpdated = await Channel.findOne({ where: { id } });
+    res.status(200).send({
+      status: 'Request succes',
+      message: 'Channel was updated',
+      data: {
+        channel: channelUpdated,
       },
+    });
+  } catch (err) {
+    return res.status(500).send({
+      status: 'Request failed',
+      message: 'Server error',
+    });
+  }
+};
+
+//? Delete
+exports.deleteChannel = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedChannel = await Channel.destroy({ where: { id } });
+
+    res.status(200).send({
+      status: 'Request succes',
+      message: 'Channel was deleted',
+      data: {
+        channel: deletedChannel,
+      },
+    });
+  } catch (err) {
+    return res.status(500).send({
+      status: 'Request failed',
+      message: err.message,
     });
   }
 };
