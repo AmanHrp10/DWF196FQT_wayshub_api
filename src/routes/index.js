@@ -3,6 +3,7 @@ const router = express.Router();
 
 //? Require Module
 const { auth: Private } = require('../middleware/auth');
+const { uploadFile } = require('../middleware/upload');
 
 const {
   getVideoAll,
@@ -17,7 +18,7 @@ const {
 //? Video routes
 router.get('/videos', getVideoAll);
 router.get('/video/:id', getVideoById);
-router.post('/video', Private, addVideo);
+router.post('/video', Private, uploadFile('thumbnail', 'video'), addVideo);
 router.patch('/video/:id', Private, updateVideo);
 router.delete('/video/:id', Private, deleteVideo);
 //? Comment routes
