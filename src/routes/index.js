@@ -33,6 +33,15 @@ const {
   deleteVideo,
 } = require('../controllers/video');
 
+//? Comments
+const {
+  getAllCommentsByVideoId,
+  getCommentById,
+  addComment,
+  updateComment,
+  deleteComment,
+} = require('../controllers/comment');
+
 //! Routers
 
 //? Susbcribe routes
@@ -56,5 +65,12 @@ router.get('/video/:id', getVideoById);
 router.post('/video', Private, uploadFile('thumbnail', 'video'), addVideo);
 router.patch('/video/:id', Private, updateVideo);
 router.delete('/video/:id', Private, deleteVideo);
+
+//? Comment routes
+router.get('/video/:id/comments', getAllCommentsByVideoId);
+router.get('/video/:id/comment/:id', getCommentById);
+router.post('/video/:id/comment', Private, addComment);
+router.patch('/video/:id/comment/:id', Private, updateComment);
+router.delete('/video/:id/comment/:id', Private, deleteComment);
 
 module.exports = router;

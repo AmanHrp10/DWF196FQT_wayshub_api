@@ -11,6 +11,7 @@ const port = process.env.PORT || 5000;
 require('dotenv').config();
 
 //? Using library
+
 app.use(express.json());
 
 // *Import Module
@@ -18,7 +19,6 @@ const routers = require('./src/routes/');
 
 //?Import router
 const router = require('./src/routes');
-
 
 app.use('/api/v1', routers);
 
