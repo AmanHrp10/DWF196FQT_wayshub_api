@@ -3,6 +3,8 @@ const router = express.Router();
 
 //? Require Module
 // const { getChannelsAll, getChannelById } = require('../controllers/channelSub');
+
+const { auth: Private } = require('../middleware/auth');
 const {
   addSubscribe,
   removeSubscribe,
@@ -13,6 +15,6 @@ const {
 // router.get('/channels/:id', getChannelById);
 router.post('/subscribe', addSubscribe);
 router.delete('/subscribe/:id', addSubscribe);
-router.get('/subscribes', getSubscribers);
+router.get('/subscribes', Private, getSubscribers);
 
 module.exports = router;
