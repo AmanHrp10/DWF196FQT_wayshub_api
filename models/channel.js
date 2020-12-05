@@ -19,6 +19,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'channelId',
         through: 'Subscribes',
       });
+
+      //* Relationship
+      Channel.hasMany(models.Video, {
+        as: 'videos',
+      });
+      Channel.hasMany(models.Comment, {
+        as: 'comments',
+      });
     }
   }
   Channel.init(
@@ -28,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.STRING,
       thumbnail: DataTypes.STRING,
       photo: DataTypes.STRING,
+      password: DataTypes.STRING,
     },
     {
       sequelize,
