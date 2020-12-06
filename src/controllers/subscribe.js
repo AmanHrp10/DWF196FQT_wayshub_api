@@ -153,11 +153,19 @@ exports.getSubscribers = async (req, res) => {
       });
     }
 
+    //? Contains on array
+    const videos = subscribtion.subscribers.map((video) => video.videos);
+    let video = [];
+    for (i = 0; i < videos.length; i++) {
+      for (j = 0; j < videos[i].length; j++) {
+        video.push(videos[i][j]);
+      }
+    }
     res.status(200).send({
       status: 'Request succes',
       message: 'Subscribtion was fetching',
       data: {
-        subscribtion: subscribtion.subscribers.map((video) => video.videos),
+        subscribtion: video,
       },
     });
   } catch (err) {
