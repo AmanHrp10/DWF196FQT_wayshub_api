@@ -137,6 +137,13 @@ exports.getSubscribers = async (req, res) => {
       },
     });
 
+    if (!subscribtion) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: "don't have a subscriber",
+      });
+    }
+
     res.status(200).send({
       status: 'Request succes',
       message: 'Subscribtion was fetching',
