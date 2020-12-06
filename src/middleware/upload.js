@@ -1,17 +1,17 @@
 const multer = require('multer');
 
-exports.uploadFile = (thumbnail, video) => {
+exports.uploadFile = (file1, file2) => {
   const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, 'Uploads');
+      return cb(null, 'Uploads/');
     },
     filename: (req, file, cb) => {
-      cb(null, Date.now() + '-' + file.originalname);
+      return cb(null, Date.now() + '-' + file.originalname);
     },
   });
 
   const fileFilter = (req, file, cb) => {
-    if (file.fieldname === thumbnail) {
+    if (file.fieldname === file1) {
       if (!file.originalname.match(/\.(jpg|JPG|jpeg|JPEG|png|PNG|gif|GIF)$/)) {
         req.fileValidationError = {
           message: 'Only image files are allowed!',
@@ -20,7 +20,7 @@ exports.uploadFile = (thumbnail, video) => {
       }
     }
 
-    if (file.fieldname === video) {
+    if (file.fieldname === file2) {
       if (!file.originalname.match(/\.(mp4)$/)) {
         req.fileValidationError = {
           message: 'Only Video files are allowed!',
@@ -37,8 +37,14 @@ exports.uploadFile = (thumbnail, video) => {
     fileFilter,
     limits: { fileSize: maxSize },
   }).fields([
-    { name: thumbnail, maxCount: 1 },
-    { name: video, maxCount: 1 },
+    {
+      name: file1,
+      maxCount: 1,
+    },
+    {
+      name: file2,
+      maxCount: 1,
+    },
   ]);
 
   //? Middleware

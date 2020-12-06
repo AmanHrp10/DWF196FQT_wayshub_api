@@ -5,13 +5,14 @@ exports.getChannelsAll = async (req, res) => {
   try {
     const channels = await Channel.findAll({
       attributes: {
-        exclude: ['createdAt', 'updatedAt'],
+        exclude: ['createdAt', 'updatedAt', 'password'],
       },
       include: {
         model: Channel,
         as: 'subscribers',
-        through: {
-          attributes: [],
+        attributes: {
+          through: 'Subscribes',
+          exclude: ['createdAt', 'updatedAt', 'password', 'Subscribes'],
         },
       },
     });
@@ -56,18 +57,14 @@ exports.getChannelById = async (req, res) => {
       },
       include: {
         model: Channel,
-        as: 'subscribers',
-        through: {
-          attributes: [],
+        as: 'channels',
+        attributes: {
+          exclude: [
+            'password',
+            'createdAt',
+            'updatedAt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ',
+          ],
         },
-        attributes: [
-          'id',
-          'email',
-          'channelName',
-          'description',
-          'thumbnail',
-          'photo',
-        ],
       },
     });
     if (!channel) {

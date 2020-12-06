@@ -1,19 +1,74 @@
-const { Subscribe, Channel } = require('../../models');
+const { Subscribe, Channel, Video } = require('../../models');
+const Joi = require('joi');
 
 //? Add subscribe
 exports.addSubscribe = async (req, res) => {
   try {
+    const { id } = req.id;
     const { body } = req;
-    const subscribe = await Subscribe.create(body, {
-      channelId: body.channelId,
+
+    const isChannel = await Channel.findOne({
+      where: {
+        id: body.channelId,
+      },
+    });
+
+    //? Handle subscribe yourself
+    if (id === body.channelId) {
+      return res.status(500).send({
+        status: 'Request failed',
+        message: 'Cannot subscribe channel yourself',
+      });
+    }
+    //? Check existed of channel
+    if (!isChannel) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: 'Channel not found',
+      });
+    }
+
+    //? Validation
+    const schema = Joi.object({
+      channelId: Joi.number().integer().required(),
+    });
+
+    const { error } = schema.validate(body, {
+      abortEarly: false,
+    });
+
+    //! Error message
+    if (error) {
+      return res.status(500).send({
+        status: 'Request failed',
+        message: error.details.map((err) => err.message),
+      });
+    }
+
+    //? Add subscribe
+    await Subscribe.create({
+      ...body,
+      subsChannelId: id,
+    });
+
+    //? Get channel was subscribed
+    const channel = await Channel.findOne({
+      where: {
+        id: body.channelId,
+      },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'password'],
+      },
     });
 
     res.status(201).send({
       status: 'Request success',
       message: 'Subscribe was added',
-      count: subscribe.length,
+      count: channel.length,
       data: {
-        subscribe,
+        subscribe: {
+          channel,
+        },
       },
     });
   } catch (err) {
@@ -27,24 +82,42 @@ exports.addSubscribe = async (req, res) => {
 //? Unsubscribe
 exports.removeSubscribe = async (req, res) => {
   try {
-    const { id } = req.params;
-    const removeSub = await Subscribe.destroy({
+    //? Init id Channel & Subscribtion
+    const { id: subsChannelId } = req.id;
+    const { id: channelId } = req.params;
+
+    //? Filter Subscribe
+    const subscribtion = await Subscribe.findOne({
       where: {
-        id,
+        channelId,
+        subsChannelId,
       },
     });
+    console.log(channelId);
 
+    //! if ID not match on params
+    if (!subscribtion) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: 'Resource not found',
+      });
+    }
+
+    //? Delete action
+    subscribtion.destroy();
+
+    //? Response
     res.status(200).send({
-      status: 'Request succes',
-      message: 'Succes to unSubscribe',
+      status: 'Request success',
+      message: 'Unsubscribed',
       data: {
-        id: removeSub,
+        id: channelId,
       },
     });
   } catch (err) {
     return res.status(500).send({
       status: 'Request failed',
-      message: 'Server error',
+      message: err.message,
     });
   }
 };
@@ -52,10 +125,15 @@ exports.removeSubscribe = async (req, res) => {
 //? Get My subscribe
 exports.getSubscribers = async (req, res) => {
   try {
+    const { id } = req.id;
     const subscribtion = await Channel.findAll({
+      attributes: [],
       include: {
-        model: Channel,
-        as: 'channels',
+        model: Video,
+        as: 'videos',
+        attributes: {
+          exclude: ['channelId', 'ChannelId', 'updatedAt'],
+        },
       },
     });
 
@@ -63,7 +141,7 @@ exports.getSubscribers = async (req, res) => {
       status: 'Request succes',
       message: 'Subscribtion was fetching',
       data: {
-        subscribtion,
+        subscribtion: subscribtion[0].videos,
       },
     });
   } catch (err) {

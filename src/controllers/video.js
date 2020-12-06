@@ -119,17 +119,19 @@ exports.getVideoById = async (req, res) => {
 exports.addVideo = async (req, res) => {
   try {
     const { id } = req.params;
-    const { body } = req;
+    const { body, files } = req;
+    console.log(body, files);
 
+    const fileThumbnail = files.thumbnail[0].filename;
+    const fileVideo = files.video[0].filename;
+
+    console.log(files);
     // const channel = await Channel.findOne({ where: { id } });
 
     const newVideo = await Video.create({
-      title: body.title,
-      thumbnail: body.thumbnail,
-      description: body.description,
-      video: body.video,
-      viewCount: 0,
-      channelId: body.channelId, // on Video using channel.id
+      ...body,
+      thumbnail: fileThumbnail,
+      video: fileVideo,
     });
 
     const video = await Video.findOne({
@@ -143,7 +145,7 @@ exports.addVideo = async (req, res) => {
         model: Channel,
         as: 'channel',
         attributes: {
-          exclude: ['createdAt', 'updatedAt'],
+          exclude: ['createdAt', 'updatedAt', 'password'],
         },
       },
     });
@@ -158,7 +160,7 @@ exports.addVideo = async (req, res) => {
     res.status(500).send({
       status: 'Request failed',
       message: {
-        error: 'Server error',
+        error: err.message,
       },
     });
   }
@@ -214,7 +216,6 @@ exports.updateVideo = async (req, res) => {
   }
 };
 
-
 //? Delete video
 exports.deleteVideo = async (req, res) => {
   try {
@@ -222,6 +223,17 @@ exports.deleteVideo = async (req, res) => {
     const deletedVideo = await Video.destroy({
       where: { id },
     });
+
+    //? Where id not exist
+    if (!deletedVideo) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: `Video with id ${id} not found`,
+        data: {
+          video: deletedVideo,
+        },
+      });
+    }
 
     //? Response after deleted
     res.status(200).send({

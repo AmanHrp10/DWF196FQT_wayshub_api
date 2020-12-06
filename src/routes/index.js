@@ -45,8 +45,8 @@ const {
 //! Routers
 
 //? Susbcribe routes
-router.post('/subscribe', addSubscribe);
-router.delete('/subscribe/:id', removeSubscribe);
+router.post('/subscribe', Private, addSubscribe);
+router.delete('/subscribe/:id', Private, removeSubscribe);
 router.get('/subscribes', Private, getSubscribers);
 
 //? Register & Login route
@@ -60,7 +60,7 @@ router.patch('/channel/:id', Private, editChannel);
 router.delete('/channel/:id', Private, deleteChannel);
 
 //? Video routes
-router.get('/videos', auth, getVideoAll);
+router.get('/videos', getVideoAll);
 router.get('/video/:id', getVideoById);
 router.post('/video', Private, uploadFile('thumbnail', 'video'), addVideo);
 router.patch('/video/:id', Private, updateVideo);

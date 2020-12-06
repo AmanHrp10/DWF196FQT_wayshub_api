@@ -14,6 +14,8 @@ require('dotenv').config();
 
 app.use(express.json());
 
+app.use('/Uploads', express.static('Uploads'));
+
 // *Import Module
 const routers = require('./src/routes/');
 
