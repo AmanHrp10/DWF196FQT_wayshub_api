@@ -1,4 +1,5 @@
-const { Channel, Subscribe } = require('../../models');
+const Joi = require('joi');
+const { Channel } = require('../../models');
 
 //? Get all channels
 exports.getChannelsAll = async (req, res) => {
@@ -97,6 +98,23 @@ exports.editChannel = async (req, res) => {
   try {
     const { id } = req.params;
     const { body } = req;
+
+    const schema = Joi.object({
+      email: Joi.string().required().min(10).email(),
+      channelName: Joi.string().required().min(2),
+      description: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(body, {
+      abortEarly: false,
+    });
+
+    if (error) {
+      return res.status(400).send({
+        status: 'Request failed',
+        message: error.details.map((err) => err.message),
+      });
+    }
 
     await Channel.update(body, { where: { id } });
 

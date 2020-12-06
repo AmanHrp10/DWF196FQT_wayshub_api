@@ -126,6 +126,8 @@ exports.removeSubscribe = async (req, res) => {
 exports.getSubscribers = async (req, res) => {
   try {
     const { id } = req.id;
+
+    //? Get channel as login user
     const subscribtion = await Channel.findOne({
       where: {
         id,

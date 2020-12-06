@@ -14,7 +14,7 @@ exports.login = async (req, res) => {
       password: Joi.string().required().min(8),
     });
 
-    //? Selection error form
+    //? Selection error form validation
     const { error } = schema.validate(body, { abortEarly: false });
 
     //? Show error
@@ -45,7 +45,7 @@ exports.login = async (req, res) => {
       });
     }
 
-    //? Encryption password from database, and matching
+    //? take a password decrypt from database, and matching
     const passEncrypt = await bcrypt.compare(password, channel.password);
 
     //? if not password
