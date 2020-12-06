@@ -126,13 +126,22 @@ exports.removeSubscribe = async (req, res) => {
 exports.getSubscribers = async (req, res) => {
   try {
     const { id } = req.id;
-    const subscribtion = await Channel.findAll({
-      attributes: [],
+    const subscribtion = await Channel.findOne({
+      where: {
+        id,
+      },
       include: {
-        model: Video,
-        as: 'videos',
-        attributes: {
-          exclude: ['channelId', 'ChannelId', 'updatedAt'],
+        model: Channel,
+        as: 'subscribers',
+        through: {
+          attributes: [],
+        },
+        include: {
+          model: Video,
+          as: 'videos',
+          attributes: {
+            exclude: ['updatedAt', 'channelId', 'ChannelId'],
+          },
         },
       },
     });
@@ -148,13 +157,13 @@ exports.getSubscribers = async (req, res) => {
       status: 'Request succes',
       message: 'Subscribtion was fetching',
       data: {
-        subscribtion: subscribtion[0].videos,
+        subscribtion: subscribtion.subscribers.map((video) => video.videos),
       },
     });
   } catch (err) {
     return res.status(500).send({
       status: 'Request failed',
-      message: err.message,
+      message: 'Server error',
     });
   }
 };

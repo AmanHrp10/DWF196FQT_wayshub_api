@@ -1,4 +1,5 @@
 const { Video, Channel, Comment } = require('../../models');
+const Joi = require('joi');
 
 //?  Get videos all
 exports.getVideoAll = async (req, res) => {
@@ -24,7 +25,7 @@ exports.getVideoAll = async (req, res) => {
     if (videos.length === 0) {
       res.status(400).send({
         status: 'Request success',
-        message: `Data not exist`,
+        message: `Channel not exist`,
         count: videos.length,
         data: {
           videos,
@@ -92,7 +93,7 @@ exports.getVideoById = async (req, res) => {
     if (video.length === 0) {
       res.status(400).send({
         status: 'Request success',
-        message: `Data not exist`,
+        message: `Channel not exist`,
         data: {
           video,
         },
@@ -118,20 +119,39 @@ exports.getVideoById = async (req, res) => {
 //? Add video
 exports.addVideo = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.id;
     const { body, files } = req;
     console.log(body, files);
 
     const fileThumbnail = files.thumbnail[0].filename;
     const fileVideo = files.video[0].filename;
-
     console.log(files);
-    // const channel = await Channel.findOne({ where: { id } });
+
+    //? Validation
+    const schema = Joi.object({
+      title: Joi.string().required(),
+      description: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(body, {
+      abortEarly: false,
+    });
+
+    if (error) {
+      return res.status(400).send({
+        status: 'Request failed',
+        error: {
+          message: error.details.map((err) => err.message),
+        },
+      });
+    }
 
     const newVideo = await Video.create({
       ...body,
+      channelId: id,
       thumbnail: fileThumbnail,
       video: fileVideo,
+      viewCount: 0,
     });
 
     const video = await Video.findOne({
@@ -141,13 +161,19 @@ exports.addVideo = async (req, res) => {
       attributes: {
         exclude: ['updatedAt', 'channelId', 'ChannelId'],
       },
-      include: {
-        model: Channel,
-        as: 'channel',
-        attributes: {
-          exclude: ['createdAt', 'updatedAt', 'password'],
+      include: [
+        {
+          model: Channel,
+          as: 'channel',
+          attributes: {
+            exclude: ['createdAt', 'updatedAt', 'password'],
+          },
         },
-      },
+        {
+          model: Comment,
+          as: 'comments',
+        },
+      ],
     });
     res.status(200).send({
       status: 'Request success',
@@ -159,9 +185,7 @@ exports.addVideo = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       status: 'Request failed',
-      message: {
-        error: err.message,
-      },
+      message: err.message,
     });
   }
 };
@@ -179,6 +203,23 @@ exports.updateVideo = async (req, res) => {
         status: 'Request failed',
         message: `Video with id ${id} not found`,
         data: [],
+      });
+    }
+    const schema = Joi.object({
+      title: Joi.string().required(),
+      description: Joi.string().required(),
+    });
+
+    const { error } = schema.validate(body, {
+      abortEarly: false,
+    });
+
+    if (error) {
+      return res.status(400).send({
+        status: 'Request failed',
+        error: {
+          message: error.details.map((err) => err.message),
+        },
       });
     }
 
@@ -210,7 +251,7 @@ exports.updateVideo = async (req, res) => {
     res.status(500).send({
       status: 'Request failed',
       message: {
-        error: err.message,
+        error: 'Server error',
       },
     });
   }
@@ -247,7 +288,7 @@ exports.deleteVideo = async (req, res) => {
     res.status(500).send({
       status: 'Request failed',
       message: {
-        error: err.message,
+        error: 'Server error',
       },
     });
   }

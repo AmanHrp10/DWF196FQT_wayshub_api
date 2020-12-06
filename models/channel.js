@@ -11,12 +11,12 @@ module.exports = (sequelize, DataTypes) => {
       //  * Relationship
       Channel.belongsToMany(models.Channel, {
         as: 'channels',
-        foreignKey: 'subsChannelId',
+        foreignKey: 'channelId',
         through: 'Subscribes',
       });
       Channel.belongsToMany(models.Channel, {
         as: 'subscribers',
-        foreignKey: 'channelId',
+        foreignKey: 'subsChannelId',
         through: 'Subscribes',
       });
 

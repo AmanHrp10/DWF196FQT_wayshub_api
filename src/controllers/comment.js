@@ -1,9 +1,18 @@
 const { Video, Channel, Comment } = require('../../models');
+const Joi = require('joi');
 
 exports.getAllCommentsByVideoId = async (req, res) => {
   try {
     const { id } = req.params;
     const videoById = await Video.findOne({ where: { id } });
+
+    if (!videoById) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: 'Video not found',
+      });
+    }
+
     const commentsByVideo = await Comment.findAll({
       where: {
         videoId: id,
@@ -13,7 +22,7 @@ exports.getAllCommentsByVideoId = async (req, res) => {
         model: Channel,
         as: 'channel',
         attributes: {
-          exclude: ['createdAt', 'updatedAt'],
+          exclude: ['createdAt', 'updatedAt', 'password'],
         },
       },
     });
@@ -38,9 +47,7 @@ exports.getAllCommentsByVideoId = async (req, res) => {
   } catch (err) {
     res.status(500).send({
       status: 'Request failed',
-      message: {
-        error: err.message,
-      },
+      message: 'Server error',
     });
   }
 };
@@ -49,6 +56,13 @@ exports.getCommentById = async (req, res) => {
   try {
     const { id } = req.params;
     const videoById = await Video.findOne({ where: { id } });
+
+    if (!videoById) {
+      return res.status(404).send({
+        status: 'Request failed',
+        message: 'Video not found',
+      });
+    }
     const comment = await Comment.findOne({
       where: {
         id,
@@ -58,7 +72,7 @@ exports.getCommentById = async (req, res) => {
         model: Channel,
         as: 'channel',
         attributes: {
-          exclude: ['createdAt', 'updatedAt'],
+          exclude: ['createdAt', 'updatedAt', 'password'],
         },
       },
     });
@@ -91,11 +105,12 @@ exports.getCommentById = async (req, res) => {
 exports.addComment = async (req, res) => {
   try {
     const { id } = req.params;
+    const { id: channelId } = req.id;
     const { body } = req;
 
     const newComment = await Comment.create({
       comment: body.comment,
-      channelId: body.channelId,
+      channelId,
       videoId: id,
     });
 
@@ -108,7 +123,7 @@ exports.addComment = async (req, res) => {
         model: Channel,
         as: 'channel',
         attributes: {
-          exclude: ['createdAt', 'updatedAt'],
+          exclude: ['createdAt', 'updatedAt', 'password'],
         },
       },
     });
