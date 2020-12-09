@@ -18,7 +18,7 @@ exports.getChannelsAll = async (req, res) => {
       },
     });
     if (!channels) {
-      res.status(400).send({
+      res.send({
         status: 'Request success',
         message: 'Data not found',
         count: channels.length,
@@ -27,7 +27,7 @@ exports.getChannelsAll = async (req, res) => {
         },
       });
     }
-    res.status(200).send({
+    res.send({
       status: 'Data fetched',
       message: 'Data succesfully fetched',
       count: channels.length,
@@ -36,7 +36,7 @@ exports.getChannelsAll = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
       message: 'Server error',
     });
@@ -54,22 +54,18 @@ exports.getChannelById = async (req, res) => {
         id,
       },
       attributes: {
-        exclude: ['updatedAt', 'createdAt'],
+        exclude: ['updatedAt', 'createdAt', 'password'],
       },
       include: {
         model: Channel,
-        as: 'channels',
+        as: 'subscribers',
         attributes: {
-          exclude: [
-            'password',
-            'createdAt',
-            'updatedAt                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             ',
-          ],
+          exclude: ['password', 'createdAt', 'updatedAt', 'Subscribes'],
         },
       },
     });
     if (!channel) {
-      res.status(400).send({
+      res.send({
         status: 'Request success',
         message: 'Data not found',
         data: {
@@ -77,7 +73,7 @@ exports.getChannelById = async (req, res) => {
         },
       });
     }
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Data succesfully fetched',
       data: {
@@ -100,9 +96,9 @@ exports.editChannel = async (req, res) => {
     const { body } = req;
 
     const schema = Joi.object({
-      email: Joi.string().required().min(10).email(),
-      channelName: Joi.string().required().min(2),
-      description: Joi.string().required(),
+      email: Joi.string().min(10).email(),
+      channelName: Joi.string().min(2),
+      description: Joi.string(),
     });
 
     const { error } = schema.validate(body, {
@@ -118,7 +114,14 @@ exports.editChannel = async (req, res) => {
 
     await Channel.update(body, { where: { id } });
 
-    const channelUpdated = await Channel.findOne({ where: { id } });
+    const channelUpdated = await Channel.findOne({
+      where: {
+        id,
+      },
+      attributes: {
+        exclude: ['createdAt', 'updatedAt', 'password'],
+      },
+    });
     res.status(200).send({
       status: 'Request succes',
       message: 'Channel was updated',

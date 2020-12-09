@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 //? Use express bodyParser
 app.use(express.json());
@@ -13,6 +14,7 @@ require('dotenv').config();
 //? Using library
 
 app.use(express.json());
+app.use(cors());
 
 app.use('/Uploads', express.static('Uploads'));
 

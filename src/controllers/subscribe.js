@@ -15,14 +15,14 @@ exports.addSubscribe = async (req, res) => {
 
     //? Handle subscribe yourself
     if (id === body.channelId) {
-      return res.status(500).send({
+      return res.send({
         status: 'Request failed',
         message: 'Cannot subscribe channel yourself',
       });
     }
     //? Check existed of channel
     if (!isChannel) {
-      return res.status(404).send({
+      return res.send({
         status: 'Request failed',
         message: 'Channel not found',
       });
@@ -39,7 +39,7 @@ exports.addSubscribe = async (req, res) => {
 
     //! Error message
     if (error) {
-      return res.status(500).send({
+      return res.send({
         status: 'Request failed',
         message: error.details.map((err) => err.message),
       });
@@ -61,7 +61,7 @@ exports.addSubscribe = async (req, res) => {
       },
     });
 
-    res.status(201).send({
+    res.send({
       status: 'Request success',
       message: 'Subscribe was added',
       count: channel.length,
@@ -72,7 +72,7 @@ exports.addSubscribe = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).send({
+    return res.send({
       status: 'Request failed',
       message: 'Server error',
     });
@@ -97,7 +97,7 @@ exports.removeSubscribe = async (req, res) => {
 
     //! if ID not match on params
     if (!subscribtion) {
-      return res.status(404).send({
+      return res.send({
         status: 'Request failed',
         message: 'Resource not found',
       });
@@ -107,7 +107,7 @@ exports.removeSubscribe = async (req, res) => {
     subscribtion.destroy();
 
     //? Response
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Unsubscribed',
       data: {
@@ -115,7 +115,7 @@ exports.removeSubscribe = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).send({
+    return res.send({
       status: 'Request failed',
       message: err.message,
     });
@@ -149,7 +149,7 @@ exports.getSubscribers = async (req, res) => {
     });
 
     if (!subscribtion) {
-      return res.status(404).send({
+      return res.send({
         status: 'Request failed',
         message: "don't have a subscriber",
       });
@@ -163,15 +163,16 @@ exports.getSubscribers = async (req, res) => {
         video.push(videos[i][j]);
       }
     }
-    res.status(200).send({
+    res.send({
       status: 'Request succes',
       message: 'Subscribtion was fetching',
+      count: video.length,
       data: {
         subscribtion: video,
       },
     });
   } catch (err) {
-    return res.status(500).send({
+    return res.send({
       status: 'Request failed',
       message: 'Server error',
     });

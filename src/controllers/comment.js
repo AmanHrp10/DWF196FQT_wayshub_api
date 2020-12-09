@@ -7,7 +7,7 @@ exports.getAllCommentsByVideoId = async (req, res) => {
     const videoById = await Video.findOne({ where: { id } });
 
     if (!videoById) {
-      return res.status(404).send({
+      return res.send({
         status: 'Request failed',
         message: 'Video not found',
       });
@@ -27,16 +27,16 @@ exports.getAllCommentsByVideoId = async (req, res) => {
       },
     });
     if (commentsByVideo.length === 0) {
-      res.status(400).send({
+      res.send({
         status: 'Request success',
-        message: 'Data not exist',
+        message: 'Comments not exist',
         count: commentsByVideo.length,
         data: {
           comments: commentsByVideo,
         },
       });
     }
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Data successfully fetching',
       count: commentsByVideo.length,
@@ -45,7 +45,7 @@ exports.getAllCommentsByVideoId = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
       message: 'Server error',
     });
@@ -54,18 +54,22 @@ exports.getAllCommentsByVideoId = async (req, res) => {
 
 exports.getCommentById = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id, commentId } = req.params;
     const videoById = await Video.findOne({ where: { id } });
 
+    //? Check video existed
     if (!videoById) {
-      return res.status(404).send({
+      return res.send({
         status: 'Request failed',
-        message: 'Video not found',
+        message: `Video id ${id} not found`,
+        data: {
+          video: videoById,
+        },
       });
     }
     const comment = await Comment.findOne({
       where: {
-        id,
+        id: commentId,
       },
       attributes: ['id', 'comment'],
       include: {
@@ -76,16 +80,18 @@ exports.getCommentById = async (req, res) => {
         },
       },
     });
+
+    //? Check Comment existed
     if (!comment) {
-      res.status(400).send({
+      res.send({
         status: 'Request success',
-        message: 'Data not exist',
+        message: `Comment id ${commentId} not exist`,
         data: {
           comment,
         },
       });
     }
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Data successfully fetching',
       data: {
@@ -93,10 +99,10 @@ exports.getCommentById = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
       message: {
-        error: err.message,
+        error: 'Server error',
       },
     });
   }
@@ -128,7 +134,7 @@ exports.addComment = async (req, res) => {
       },
     });
 
-    res.status(201).send({
+    res.send({
       status: 'Request success',
       message: 'Comment was adding',
       data: {
@@ -170,7 +176,7 @@ exports.updateComment = async (req, res) => {
         },
       },
     });
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Comment was updated',
       data: {
@@ -178,7 +184,7 @@ exports.updateComment = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).send({
+    return res.send({
       status: 'Request failed',
       message: 'Server error',
     });
@@ -193,7 +199,7 @@ exports.deleteComment = async (req, res) => {
         id,
       },
     });
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Comment was Deleted',
       data: {
@@ -201,7 +207,7 @@ exports.deleteComment = async (req, res) => {
       },
     });
   } catch (err) {
-    return res.status(500).send({
+    return res.send({
       status: 'Request failed',
       message: 'Server error',
     });

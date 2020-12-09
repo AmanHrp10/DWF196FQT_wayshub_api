@@ -68,7 +68,7 @@ router.delete('/video/:id', Private, deleteVideo);
 
 //? Comment routes
 router.get('/video/:id/comments', getAllCommentsByVideoId);
-router.get('/video/:id/comment/:id', getCommentById);
+router.get('/video/:id/comment/:commentId', getCommentById);
 router.post('/video/:id/comment', Private, addComment);
 router.patch('/video/:id/comment/:id', Private, updateComment);
 router.delete('/video/:id/comment/:id', Private, deleteComment);

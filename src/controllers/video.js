@@ -18,12 +18,13 @@ exports.getVideoAll = async (req, res) => {
             'ChannelId',
             'subscribeId',
             'commentId',
+            'password',
           ],
         },
       },
     });
-    if (videos.length === 0) {
-      res.status(400).send({
+    if (!videos) {
+      res.send({
         status: 'Request success',
         message: `Channel not exist`,
         count: videos.length,
@@ -32,7 +33,7 @@ exports.getVideoAll = async (req, res) => {
         },
       });
     }
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Data succesfully fetched',
       count: videos.length,
@@ -41,9 +42,9 @@ exports.getVideoAll = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
-      message: err.message,
+      message: 'Server error',
     });
   }
 };
@@ -64,7 +65,7 @@ exports.getVideoById = async (req, res) => {
           model: Channel,
           as: 'channel',
           attributes: {
-            exclude: ['createdAt', 'updatedAt'],
+            exclude: ['createdAt', 'updatedAt', 'password'],
           },
         },
         {
@@ -84,22 +85,22 @@ exports.getVideoById = async (req, res) => {
             model: Channel,
             as: 'channel',
             attributes: {
-              exclude: ['createdAt', 'updatedAt'],
+              exclude: ['createdAt', 'updatedAt', 'password'],
             },
           },
         },
       ],
     });
-    if (video.length === 0) {
-      res.status(400).send({
+    if (!video) {
+      res.send({
         status: 'Request success',
-        message: `Channel not exist`,
+        message: `Video id ${id} not exist`,
         data: {
           video,
         },
       });
     }
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Data succesfully fetched',
       data: {
@@ -107,7 +108,7 @@ exports.getVideoById = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
       message: {
         error: 'Server error',
@@ -138,7 +139,7 @@ exports.addVideo = async (req, res) => {
     });
 
     if (error) {
-      return res.status(400).send({
+      return res.send({
         status: 'Request failed',
         error: {
           message: error.details.map((err) => err.message),
@@ -172,10 +173,20 @@ exports.addVideo = async (req, res) => {
         {
           model: Comment,
           as: 'comments',
+          attributes: {
+            exclude: [
+              'createdAt',
+              'updatedAt',
+              'channelId',
+              'videoId',
+              'ChannelId',
+              'VideoId',
+            ],
+          },
         },
       ],
     });
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Video succesfully Added',
       data: {
@@ -183,9 +194,9 @@ exports.addVideo = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
-      message: err.message,
+      message: 'Server error',
     });
   }
 };
@@ -206,8 +217,8 @@ exports.updateVideo = async (req, res) => {
       });
     }
     const schema = Joi.object({
-      title: Joi.string().required(),
-      description: Joi.string().required(),
+      title: Joi.string(),
+      description: Joi.string(),
     });
 
     const { error } = schema.validate(body, {
@@ -234,13 +245,13 @@ exports.updateVideo = async (req, res) => {
         model: Channel,
         as: 'channel',
         attributes: {
-          exclude: ['createdAt', 'updatedAt'],
+          exclude: ['createdAt', 'updatedAt', 'password'],
         },
       },
     });
 
     //? Response Video after updated
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Video succesfully updated',
       data: {
@@ -248,7 +259,7 @@ exports.updateVideo = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
       message: {
         error: 'Server error',
@@ -267,7 +278,7 @@ exports.deleteVideo = async (req, res) => {
 
     //? Where id not exist
     if (!deletedVideo) {
-      return res.status(404).send({
+      return res.send({
         status: 'Request failed',
         message: `Video with id ${id} not found`,
         data: {
@@ -277,7 +288,7 @@ exports.deleteVideo = async (req, res) => {
     }
 
     //? Response after deleted
-    res.status(200).send({
+    res.send({
       status: 'Request success',
       message: 'Video succesfully deleted',
       data: {
@@ -285,7 +296,7 @@ exports.deleteVideo = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).send({
+    res.send({
       status: 'Request failed',
       message: {
         error: 'Server error',
